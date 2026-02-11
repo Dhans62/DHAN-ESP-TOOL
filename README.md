@@ -44,3 +44,31 @@ Alat ini mengikuti standar hirarki folder berikut:
     └── [Nama_Proyek]/ # Folder proyek individu
         ├── [Nama].ino # Entry point kode
         └── .esp_config # File konfigurasi board spesifik proyek
+```
+
+## Cara Penggunaan
+
+1. Berikan izin eksekusi pada script:
+```bash
+   chmod +x esp.sh
+```
+
+2. Jalankan script:
+```zsh
+   ./esp.sh
+```
+
+3. Ikuti menu navigasi pada layar:
+Pilih proyek yang ada atau buat proyek baru.
+Lakukan konfigurasi board saat pertama kali membuka proyek baru.
+Gunakan menu [2] untuk melakukan kompilasi dan pengunggahan kode secara berurutan.
+
+## Manajemen Izin Akses (Penting)
+Untuk menghindari penggunaan sudo secara terus-menerus saat mengakses port USB, pastikan user telah terdaftar dalam grup dialout:
+```bash
+   sudo usermod -a -G dialout $USER
+```
+Catatan: Diperlukan restart atau logout/login ulang setelah menjalankan perintah ini.
+
+## Informasi Teknis
+Script ini menggunakan arduino-cli sebagai backend utama. Konfigurasi board disimpan dalam file tersembunyi .esp_config di setiap folder proyek, memungkinkan pengguna untuk bekerja pada beberapa proyek dengan tipe board yang berbeda secara bergantian tanpa perlu mengatur ulang konfigurasi global.
