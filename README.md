@@ -65,10 +65,25 @@ Gunakan menu [2] untuk melakukan kompilasi dan pengunggahan kode secara beruruta
 
 ## Manajemen Izin Akses (Penting)
 Untuk menghindari penggunaan sudo secara terus-menerus saat mengakses port USB, pastikan user telah terdaftar dalam grup dialout:
-```bash
+```
    sudo usermod -a -G dialout $USER
 ```
 Catatan: Diperlukan restart atau logout/login ulang setelah menjalankan perintah ini.
 
 ## Informasi Teknis
 Script ini menggunakan arduino-cli sebagai backend utama. Konfigurasi board disimpan dalam file tersembunyi .esp_config di setiap folder proyek, memungkinkan pengguna untuk bekerja pada beberapa proyek dengan tipe board yang berbeda secara bergantian tanpa perlu mengatur ulang konfigurasi global.
+
+## Kontribusi
+
+Kontribusi untuk pengembangan alat ini sangat terbuka. Jika Anda menemukan bug atau memiliki saran fitur (seperti penambahan dukungan board baru atau optimasi UI), silakan ajukan melalui **Pull Request** atau buka **Issue** baru di repositori ini.
+
+## Lisensi
+
+Proyek ini didistribusikan di bawah Lisensi MIT. Anda bebas menggunakan, memodifikasi, dan mendistribusikan ulang kode ini selama mencantumkan atribusi kepada penulis asli.
+
+## Disclaimer
+
+Alat ini disediakan "apa adanya" tanpa jaminan dalam bentuk apa pun. Penulis tidak bertanggung jawab atas kerusakan hardware atau kehilangan data yang mungkin terjadi akibat penggunaan script ini. Selalu pastikan tegangan input pada board ESP Anda stabil saat melakukan proses flashing, terutama jika dijalankan melalui perangkat STB / Android (root&kernel support).
+
+---
+**DHAN-ESP-TOOL** | Developed by [Dhann] | 2026
