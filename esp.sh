@@ -31,7 +31,7 @@ display_header() {
     echo -e "${CYAN} | |  | |  __  | / /\ \ | . \` |   |  __|  \___ \|  ___/ ${NC}"
     echo -e "${CYAN} | |__| | |  | |/ ____ \| |\  |   | |____ ____) | |     ${NC}"
     echo -e "${CYAN} |_____/|_|  |_/_/    \_\_| \_|   |______|_____/|_|     ${NC}"
-    echo -e "${YELLOW}       >>> Advanced TUI for ESP | v4.0 <<<${NC}"
+    echo -e "${YELLOW}       >>> Advanced TUI for ESP | v5.0 <<<${NC}"
     draw_line
 }
 
@@ -68,7 +68,7 @@ sync_project_file() {
     fi
 }
 
-# --- CONFIGURATOR (FULL PARAMETERS) ---
+# --- CONFIGURATOR ---
 setup_new_config() {
     display_header
     echo -e "${GREEN}--- STEP 1: PILIH BOARD ---${NC}"
@@ -83,46 +83,21 @@ setup_new_config() {
     esac
 
     echo -e "\n${GREEN}--- STEP 2: PARAMETER SETTING (ENTER UNTUK DEFAULT) ---${NC}"
-    
-    # 1. USB CDC
     echo -ne "${CYAN} > USB CDC On Boot? (y/n) [Default n]: ${NC}"
     read cdc_q
     [[ "$cdc_q" =~ ^[Yy]$ ]] && CONF_CDC="CDCOnBoot=cdc" || CONF_CDC="CDCOnBoot=default"
-
-    # 2. CPU Frequency
-    echo -e " > CPU Freq: [1] 160MHz [2] 80MHz [3] 240MHz (Classic only)"
+    echo -e " > CPU Freq: [1] 160MHz [2] 80MHz [3] 240MHz"
     read -p "   Pilihan [Default 1]: " cpu_q
-    case $cpu_q in
-        2) CONF_CPU="CPUFreq=80" ;;
-        3) CONF_CPU="CPUFreq=240" ;;
-        *) CONF_CPU="CPUFreq=160" ;;
-    esac
-
-    # 3. Partition Scheme (Crucial!)
-    echo -e " > Partisi: [1] Default [2] Huge APP (No OTA) [3] Minimal SPIFFS"
+    case $cpu_q in 2) CONF_CPU="CPUFreq=80" ;; 3) CONF_CPU="CPUFreq=240" ;; *) CONF_CPU="CPUFreq=160" ;; esac
+    echo -e " > Partisi: [1] Default [2] Huge APP [3] Min SPIFFS"
     read -p "   Pilihan [Default 1]: " part_q
-    case $part_q in
-        2) CONF_PART="PartitionScheme=huge_app" ;;
-        3) CONF_PART="PartitionScheme=min_spiffs" ;;
-        *) CONF_PART="PartitionScheme=default" ;;
-    esac
-
-    # 4. Flash Mode & Speed
+    case $part_q in 2) CONF_PART="PartitionScheme=huge_app" ;; 3) CONF_PART="PartitionScheme=min_spiffs" ;; *) CONF_PART="PartitionScheme=default" ;; esac
     echo -e " > Flash: [1] DIO 40MHz [2] QIO 80MHz"
     read -p "   Pilihan [Default 1]: " flash_q
-    case $flash_q in
-        2) CONF_FLASH="FlashMode=qio,FlashFreq=80" ;;
-        *) CONF_FLASH="FlashMode=dio,FlashFreq=40" ;;
-    esac
-
-    # 5. Core Debug Level
-    echo -e " > Debug Level: [1] None [2] Info [3] Verbose"
+    case $flash_q in 2) CONF_FLASH="FlashMode=qio,FlashFreq=80" ;; *) CONF_FLASH="FlashMode=dio,FlashFreq=40" ;; esac
+    echo -e " > Debug: [1] None [2] Info [3] Verbose"
     read -p "   Pilihan [Default 1]: " dbg_q
-    case $dbg_q in
-        2) CONF_DBG="DebugLevel=info" ;;
-        3) CONF_DBG="DebugLevel=verbose" ;;
-        *) CONF_DBG="DebugLevel=none" ;;
-    esac
+    case $dbg_q in 2) CONF_DBG="DebugLevel=info" ;; 3) CONF_DBG="DebugLevel=verbose" ;; *) CONF_DBG="DebugLevel=none" ;; esac
 
     FQBN="${FQBN_BASE}:${CONF_CDC},${CONF_CPU},${CONF_PART},${CONF_FLASH},${CONF_DBG}"
     echo "FQBN=\"$FQBN\"" > "$CONFIG_FILE"
@@ -130,40 +105,33 @@ setup_new_config() {
     sleep 1
 }
 
-# --- COMPILER & FLASHING WITH UI ---
+# --- COMPILER & FLASHING ---
 smart_compile_upload() {
     display_header
     echo -e "${YELLOW} [STEP 1/2] MENGOMPILASI...${NC}"
     echo -e "${PURPLE} [INFO] Menggunakan 2 Core STB untuk stabilitas daya.${NC}"
     draw_line
-    
-    # Create a temporary file for logging
     local log_file=$(mktemp)
-    
-    # Run compile in background and show last line (The "Interactive" part)
     $CLI_PATH compile --fqbn "$FQBN" -j 2 "$PROJECT_PATH" > "$log_file" 2>&1 &
     local pid=$!
-    
     while kill -0 $pid 2>/dev/null; do
-        local last_line=$(tail -n 1 "$log_file" | cut -c1-60)
+        local last_line=$(tail -n 1 "$log_file" | cut -c1-100)
         echo -ne "  ${CYAN}➜${NC} $last_line\033[K\r"
         sleep 0.1
     done
     wait $pid
     local exit_code=$?
-    
     if [ $exit_code -eq 0 ]; then
         echo -e "\n${GREEN} [V] KOMPILASI BERHASIL!${NC}"
         draw_line
         echo -e "${YELLOW} [STEP 2/2] FLASHING...${NC}"
-        
         PORT=$(ls /dev/ttyACM* /dev/ttyUSB* 2>/dev/null | head -n 1)
         if [ -n "$PORT" ]; then
             sudo chmod 666 "$PORT" 2>/dev/null
             $CLI_PATH upload -p "$PORT" --fqbn "$FQBN" "$PROJECT_PATH"
             echo -e "${GREEN} [V] SEMUA PROSES SELESAI!${NC}"
         else
-            echo -e "${RED} [!] PORT TIDAK DITEMUKAN! Pastikan ESP tercolok.${NC}"
+            echo -e "${RED} [!] PORT TIDAK DITEMUKAN!${NC}"
         fi
     else
         echo -e "\n${RED} [X] KOMPILASI GAGAL! Detail Error:${NC}"
@@ -173,18 +141,54 @@ smart_compile_upload() {
     read -p " Tekan ENTER untuk kembali..."
 }
 
-# --- LIBRARY MANAGER ---
+# --- [UPDATE] LIBRARY MANAGER PRO ---
 manage_libraries() {
     while true; do
         display_header
         echo -e "${GREEN}--- LIBRARY MANAGER ---${NC}"
         echo -e " [1] Cari & Install    [2] List Terpasang"
         echo -e " [3] Update Database   [4] Kembali"
+        draw_line
         read -e -p " Pilih Aksi: " lib_act
         case $lib_act in
-            1) read -p " Nama/Keyword: " kw; $CLI_PATH lib install "$kw" && read -p " OK. Enter..." ;;
+            1) 
+                read -p " Masukkan Nama Library/Keyword: " kw
+                echo -e "${YELLOW} [..] Mencari library...${NC}"
+                # Ambil daftar nama library
+                mapfile -t lib_list < <($CLI_PATH lib search "$kw" | grep "Name:" | sed 's/Name: //g' | tr -d '"' | head -n 15)
+                
+                if [ ${#lib_list[@]} -eq 0 ]; then
+                    echo -e "${RED} [!] Library tidak ditemukan.${NC}"
+                    sleep 2; continue
+                fi
+
+                display_header
+                echo -e "${GREEN}HASIL PENCARIAN (Top 15):${NC}"
+                for i in "${!lib_list[@]}"; do
+                    echo -e " [${CYAN}$((i+1))${NC}] ${lib_list[$i]}"
+                done
+                draw_line
+                read -p " Pilih nomor untuk Detail (atau 'q' batal): " lib_sel
+                [[ "$lib_sel" == "q" ]] && continue
+                
+                selected_name="${lib_list[$((lib_sel-1))]}"
+                [ -z "$selected_project" ] && continue
+
+                # Tampilkan Detail
+                display_header
+                echo -e "${YELLOW}--- DETAIL LIBRARY ---${NC}"
+                $CLI_PATH lib search "$selected_name" | grep -E "Name:|Author:|Maintainer:|Sentence:|Paragraph:|Website:|Versions:" | sed 's/^  //'
+                draw_line
+                read -p " Instal library ini? (y/n): " inst_q
+                if [[ "$inst_q" =~ ^[Yy]$ ]]; then
+                    echo -e "${CYAN} [..] Mengunduh & Menginstal...${NC}"
+                    $CLI_PATH lib install "$selected_name"
+                    echo -e "${GREEN} [V] Berhasil diinstal!${NC}"
+                    sleep 2
+                fi
+                ;;
             2) $CLI_PATH lib list; read -p " Enter..." ;;
-            3) $CLI_PATH lib update-index; read -p " Enter..." ;;
+            3) echo -e "${YELLOW} [..] Memperbarui index library...${NC}"; $CLI_PATH lib update-index; echo -e "${GREEN} [V] Selesai.${NC}"; sleep 1 ;;
             4) break ;;
         esac
     done
@@ -199,7 +203,9 @@ while true; do
     display_header
     cd "$ARDUINO_DIR" || exit
     echo -e "${YELLOW}DAFTAR PROYEK DI ~/Arduino:${NC}"
-    projects=($(ls -d */ 2>/dev/null | sed 's/\///'))
+    # FIX BUG: Filter folder 'libraries' agar tidak muncul di daftar
+    projects=($(ls -d */ 2>/dev/null | grep -v "libraries/" | sed 's/\///'))
+    
     for i in "${!projects[@]}"; do
         echo -e " [${CYAN}$((i+1))${NC}] ${projects[$i]}"
     done
