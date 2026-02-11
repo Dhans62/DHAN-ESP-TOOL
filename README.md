@@ -50,12 +50,12 @@ Alat ini mengikuti standar hirarki folder berikut:
 
 1. Berikan izin eksekusi pada script:
 ```
-   chmod +x esp.sh
+chmod +x esp.sh
 ```
 
 2. Jalankan script:
 ```
-   ./esp.sh
+./esp.sh
 ```
 
 3. Ikuti menu navigasi pada layar:
@@ -71,7 +71,7 @@ sudo ln -s $(pwd)/esp.sh /usr/local/bin/esp
 ## Manajemen Izin Akses (Penting)
 Untuk menghindari penggunaan sudo secara terus-menerus saat mengakses port USB, pastikan user telah terdaftar dalam grup dialout:
 ```
-   sudo usermod -a -G dialout $USER
+sudo usermod -a -G dialout $USER
 ```
 Catatan: Diperlukan restart atau logout/login ulang setelah menjalankan perintah ini.
 
