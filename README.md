@@ -49,12 +49,12 @@ Alat ini mengikuti standar hirarki folder berikut:
 ## Cara Penggunaan
 
 1. Berikan izin eksekusi pada script:
-```bash
+```
    chmod +x esp.sh
 ```
 
 2. Jalankan script:
-```zsh
+```
    ./esp.sh
 ```
 
