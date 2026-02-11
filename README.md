@@ -63,6 +63,11 @@ Pilih proyek yang ada atau buat proyek baru.
 Lakukan konfigurasi board saat pertama kali membuka proyek baru.
 Gunakan menu [2] untuk melakukan kompilasi dan pengunggahan kode secara berurutan.
 
+#### Agar script dapat dipanggil dari direktori mana pun, jalankan perintah berikut:
+```
+sudo ln -s $(pwd)/esp.sh /usr/local/bin/esp
+```
+
 ## Manajemen Izin Akses (Penting)
 Untuk menghindari penggunaan sudo secara terus-menerus saat mengakses port USB, pastikan user telah terdaftar dalam grup dialout:
 ```
